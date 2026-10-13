@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KL Hospital | Patient Records</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+
+            <div class="sidebar-cross">✚</div>
+
+            <div>
+                <h2>KL HOSPITAL</h2>
+                <span>Priority Scheduling</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <span>📊</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('patient_form') }}" class="nav-item">
+                <span>📝</span>
+                Patient Form
+            </a>
+
+            <a href="{{ url_for('patients') }}" class="nav-item active">
+                <span>👥</span>
+                Patient Records
+            </a>
+
+            <a href="{{ url_for('queue') }}" class="nav-item">
+                <span>🚨</span>
+                Priority Queue
+            </a>
+
+            <a href="{{ url_for('doctors') }}" class="nav-item">
+                <span>👨‍⚕️</span>
+                Doctors
+            </a>
+
+            <a href="{{ url_for('rooms') }}" class="nav-item">
+                <span>🛏️</span>
+                Rooms
+            </a>
+
+            <a href="{{ url_for('allocation') }}" class="nav-item">
+                <span>🔗</span>
+                Allocation
+            </a>
+
+            <a href="{{ url_for('process') }}" class="nav-item">
+                <span>⚙️</span>
+                Scheduling Process
+            </a>
+
+            <a href="{{ url_for('results') }}" class="nav-item">
+                <span>📈</span>
+                Results
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <span>🚪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main-content">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Patient Records</h1>
+
+                <p>
+                    Search, update and manage registered patients.
+                </p>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>Administrator</strong>
+
+                    <small>Hospital Admin</small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= RECORDS CARD ================= -->
+
+        <section class="records-card">
+
+
+            <!-- HEADER -->
+
+            <div class="records-header">
+
+                <div>
+
+                    <h2>All Patients</h2>
+
+                    <p>
+                        {{ patients|length }} patient(s) currently registered
+                    </p>
+
+                </div>
+
+
+                <a href="{{ url_for('patient_form') }}"
+                   class="add-patient-btn">
+
+                    + Register Patient
+
+                </a>
+
+            </div>
+
+
+            <!-- ================= SEARCH ================= -->
+
+            <div class="patient-search-area">
+
+                <div class="search-box">
+
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        id="patientSearch"
+                        placeholder="Search by patient ID, name or condition..."
+                    >
+
+                </div>
+
+
+                <select id="priorityFilter">
+
+                    <option value="all">
+                        All Priorities
+                    </option>
+
+                    <option value="4">
+                        Critical
+                    </option>
+
+                    <option value="3">
+                        High
+                    </option>
+
+                    <option value="2">
+                        Medium
+                    </option>
+
+                    <option value="1">
+                        Low
+                    </option>
+
+                </select>
+
+
+                <select id="statusFilter">
+
+                    <option value="all">
+                        All Status
+                    </option>
+
+                    <option value="Waiting">
+                        Waiting
+                    </option>
+
+                    <option value="Completed">
+                        Completed
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ================= TABLE ================= -->
+
+            <div class="table-wrapper">
+
+                <table class="records-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Patient</th>
+
+                            <th>Age / Gender</th>
+
+                            <th>Contact</th>
+
+                            <th>Condition</th>
+
+                            <th>Arrival</th>
+
+                            <th>Priority</th>
+
+                            <th>Status</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="patientTableBody">
+
+                        {% if patients %}
+
+                            {% for patient in patients %}
+
+                            <tr
+                                data-priority="{{ patient['priority'] }}"
+                                data-status="{{ patient['status'] }}"
+                            >
+
+
+                                <!-- PATIENT -->
+
+                                <td>
+
+                                    <div class="patient-name-cell">
+
+                                        <div class="patient-avatar">
+                                            {{ patient["name"][0]|upper }}
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {{ patient["name"] }}
+                                            </strong>
+
+                                            <small>
+                                                {{ patient["patient_id"] }}
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- AGE / GENDER -->
+
+                                <td>
+
+                                    <div class="age-gender">
+
+                                        <strong>
+                                            {{ patient["age"] or "-" }}
+                                        </strong>
+
+                                        <small>
+                                            {{ patient["gender"] or "-" }}
+                                        </small>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- CONTACT -->
+
+                                <td>
+
+                                    {{ patient["contact"] or "-" }}
+
+                                </td>
+
+
+                                <!-- CONDITION -->
+
+                                <td>
+
+                                    <span class="condition-text">
+
+                                        {{ patient["medical_condition"] or "Not specified" }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ARRIVAL -->
+
+                                <td>
+
+                                    {{ patient["arrival_time"] }}
+
+                                </td>
+
+
+                                <!-- PRIORITY -->
+
+                                <td>
+
+                                    {% if patient["priority"] == 4 %}
+
+                                        <span class="priority critical">
+                                            Critical
+                                        </span>
+
+                                    {% elif patient["priority"] == 3 %}
+
+                                        <span class="priority high">
+                                            High
+                                        </span>
+
+                                    {% elif patient["priority"] == 2 %}
+
+                                        <span class="priority medium">
+                                            Medium
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="priority low">
+                                            Low
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    {% if patient["status"] == "Completed" %}
+
+                                        <span class="status completed-status">
+                                            ✓ Completed
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status waiting-status">
+                                            ● Waiting
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td>
+
+                                    <div class="patient-actions">
+
+                                        <a
+                                            href="{{ url_for('edit_patient', patient_id=patient['patient_id']) }}"
+                                            class="edit-action"
+                                            title="Update patient"
+                                        >
+                                            ✏️
+                                        </a>
+
+
+                                        <button
+                                            class="delete-action"
+                                            onclick="deletePatient('{{ patient['patient_id'] }}', '{{ patient['name'] }}')"
+                                            title="Delete patient"
+                                        >
+                                            🗑️
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <tr id="noPatientsRow">
+
+                                <td colspan="8"
+                                    class="empty-records">
+
+                                    <div class="empty-icon">
+                                        👥
+                                    </div>
+
+                                    <h3>
+                                        No Patients Found
+                                    </h3>
+
+                                    <p>
+                                        Register your first patient to see
+                                        them here.
+                                    </p>
+
+                                    <a
+                                        href="{{ url_for('patient_form') }}"
+                                        class="add-patient-btn"
+                                    >
+                                        + Register Patient
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- SEARCH RESULT MESSAGE -->
+
+            <div id="noSearchResults"
+                 class="no-search-results"
+                 style="display:none;">
+
+                <span>🔍</span>
+
+                <strong>No matching patients</strong>
+
+                <p>
+                    Try a different name, patient ID or filter.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= INFO ================= -->
+
+        <div class="records-info">
+
+            <span>💡</span>
+
+            <div>
+
+                <strong>Patient Record Management</strong>
+
+                <p>
+                    Patient information is stored in the local SQLite
+                    database. Updating a record changes the stored details,
+                    while deleting a patient removes the record from the
+                    scheduling system.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <footer class="dashboard-footer">
+
+            <p>
+                KL Hospital Priority Scheduling System © 2026
+            </p>
+
+            <span>
+                Secure patient management
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        const searchInput =
+            document.getElementById("patientSearch");
+
+        const priorityFilter =
+            document.getElementById("priorityFilter");
+
+        const statusFilter =
+            document.getElementById("statusFilter");
+
+        const tableBody =
+            document.getElementById("patientTableBody");
+
+        const noResults =
+            document.getElementById("noSearchResults");
+
+
+        function filterPatients() {
+
+            const search =
+                searchInput.value.toLowerCase().trim();
+
+            const priority =
+                priorityFilter.value;
+
+            const status =
+                statusFilter.value;
+
+            const rows =
+                tableBody.querySelectorAll(
+                    "tr[data-priority]"
+                );
+
+            let visibleCount = 0;
+
+
+            rows.forEach(function(row) {
+
+                const text =
+                    row.innerText.toLowerCase();
+
+                const rowPriority =
+                    row.dataset.priority;
+
+                const rowStatus =
+                    row.dataset.status;
+
+
+                const matchesSearch =
+                    text.includes(search);
+
+                const matchesPriority =
+                    priority === "all" ||
+                    rowPriority === priority;
+
+                const matchesStatus =
+                    status === "all" ||
+                    rowStatus === status;
+
+
+                if (
+                    matchesSearch &&
+                    matchesPriority &&
+                    matchesStatus
+                ) {
+
+                    row.style.display = "";
+
+                    visibleCount++;
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+
+            if (rows.length > 0 && visibleCount === 0) {
+
+                noResults.style.display = "block";
+
+            } else {
+
+                noResults.style.display = "none";
+
+            }
+
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            filterPatients
+        );
+
+
+        priorityFilter.addEventListener(
+            "change",
+            filterPatients
+        );
+
+
+        statusFilter.addEventListener(
+            "change",
+            filterPatients
+        );
+
+
+        // DELETE PATIENT
+
+        function deletePatient(patientId, patientName) {
+
+            const confirmation =
+                confirm(
+                    "Are you sure you want to delete " +
+                    patientName +
+                    " (" +
+                    patientId +
+                    ")?"
+                );
+
+
+            if (!confirmation) {
+                return;
+            }
+
+
+            fetch(
+                "/delete-patient/" + patientId,
+                {
+                    method: "POST"
+                }
+            )
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                if (data.success) {
+
+                    alert(
+                        "Patient deleted successfully."
+                    );
+
+                    location.reload();
+
+                } else {
+
+                    alert(
+                        data.message ||
+                        "Unable to delete patient."
+                    );
+
+                }
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                alert(
+                    "Something went wrong."
+                );
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

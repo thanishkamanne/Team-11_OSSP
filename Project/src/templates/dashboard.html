@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KL Hospital | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dashboard-page">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+
+            <div class="sidebar-cross">
+                ✚
+            </div>
+
+            <div>
+                <h2>KL HOSPITAL</h2>
+                <span>Priority Scheduling</span>
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard') }}"
+               class="nav-item active">
+
+                <span>📊</span>
+                Dashboard
+
+            </a>
+
+
+            <a href="{{ url_for('patient_form') }}"
+               class="nav-item">
+
+                <span>📝</span>
+                Patient Form
+
+            </a>
+
+
+            <a href="{{ url_for('patients') }}"
+               class="nav-item">
+
+                <span>👥</span>
+                Patient Records
+
+            </a>
+
+
+            <a href="{{ url_for('queue') }}"
+               class="nav-item">
+
+                <span>🚨</span>
+                Priority Queue
+
+            </a>
+
+
+            <a href="{{ url_for('doctors') }}" class="nav-item">
+                <span>👨‍⚕️</span>
+                Doctors
+            </a>
+
+            <a href="{{ url_for('rooms') }}" class="nav-item">
+                <span>🛏️</span>
+                Rooms
+            </a>
+
+            <a href="{{ url_for('allocation') }}" class="nav-item">
+                <span>🔗</span>
+                Allocation
+            </a>
+
+            <a href="{{ url_for('process') }}"
+               class="nav-item">
+
+                <span>⚙️</span>
+                Scheduling Process
+
+            </a>
+
+
+            <a href="{{ url_for('results') }}"
+               class="nav-item">
+
+                <span>📈</span>
+                Results
+
+            </a>
+
+        </nav>
+
+
+        <!-- LOGOUT -->
+
+        <div class="sidebar-bottom">
+
+            <a href="{{ url_for('logout') }}"
+               class="logout-btn">
+
+                <span>🚪</span>
+                Logout
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main-content">
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Hospital Dashboard</h1>
+
+                <p>
+                    Welcome back, Admin. Here's today's
+                    patient scheduling overview.
+                </p>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>Administrator</strong>
+
+                    <small>
+                        Hospital Admin
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= STAT CARDS ================= -->
+
+        <section class="stats-grid">
+
+
+            <!-- TOTAL -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon blue">
+                    👥
+                </div>
+
+                <div>
+
+                    <p>Total Patients</p>
+
+                    <h2>
+                        {{ total_patients }}
+                    </h2>
+
+                    <span class="stat-description">
+                        Registered patients
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- CRITICAL -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon red">
+                    🚨
+                </div>
+
+                <div>
+
+                    <p>Critical Patients</p>
+
+                    <h2>
+                        {{ critical_patients }}
+                    </h2>
+
+                    <span class="stat-description critical-text">
+                        Highest priority
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- WAITING -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon orange">
+                    ⏳
+                </div>
+
+                <div>
+
+                    <p>Waiting Patients</p>
+
+                    <h2>
+                        {{ waiting_patients }}
+                    </h2>
+
+                    <span class="stat-description">
+                        Awaiting treatment
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- COMPLETED -->
+
+            <div class="stat-card">
+
+                <div class="stat-icon green">
+                    ✓
+                </div>
+
+                <div>
+
+                    <p>Completed</p>
+
+                    <h2>
+                        {{ completed_patients }}
+                    </h2>
+
+                    <span class="stat-description">
+                        Treatment completed
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CHARTS ================= -->
+
+        <section class="charts-grid">
+
+
+            <!-- PRIORITY CHART -->
+
+            <div class="dashboard-card chart-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>Priority Distribution</h2>
+
+                        <p>
+                            Patients grouped by priority level
+                        </p>
+
+                    </div>
+
+                    <span class="card-icon">
+                        📊
+                    </span>
+
+                </div>
+
+
+                <div class="chart-container">
+
+                    <canvas id="priorityChart"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- STATUS SUMMARY -->
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>Patient Status</h2>
+
+                        <p>
+                            Current treatment status
+                        </p>
+
+                    </div>
+
+                    <span class="card-icon">
+                        🏥
+                    </span>
+
+                </div>
+
+
+                <div class="status-list">
+
+                    <div class="status-row">
+
+                        <div class="status-name">
+
+                            <span class="status-dot waiting"></span>
+
+                            Waiting
+
+                        </div>
+
+                        <strong>
+                            {{ waiting_patients }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-row">
+
+                        <div class="status-name">
+
+                            <span class="status-dot critical"></span>
+
+                            Critical
+
+                        </div>
+
+                        <strong>
+                            {{ critical_patients }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-row">
+
+                        <div class="status-name">
+
+                            <span class="status-dot completed"></span>
+
+                            Completed
+
+                        </div>
+
+                        <strong>
+                            {{ completed_patients }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-message">
+
+                    <span>💡</span>
+
+                    <p>
+                        Critical patients are automatically
+                        placed at the highest priority.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= RECENT PATIENTS ================= -->
+
+        <section class="dashboard-card recent-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>Recent Patients</h2>
+
+                    <p>
+                        Recently registered patients
+                    </p>
+
+                </div>
+
+
+                <a href="{{ url_for('patients') }}"
+                   class="view-all-btn">
+
+                    View All →
+
+                </a>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="patient-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Patient ID</th>
+
+                            <th>Name</th>
+
+                            <th>Arrival Time</th>
+
+                            <th>Priority</th>
+
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% if recent_patients %}
+
+                            {% for patient in recent_patients %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ patient["patient_id"] }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ patient["name"] }}
+                                </td>
+
+                                <td>
+                                    {{ patient["arrival_time"] }}
+                                </td>
+
+                                <td>
+
+                                    {% if patient["priority"] == 4 %}
+
+                                        <span class="priority critical">
+                                            Critical
+                                        </span>
+
+                                    {% elif patient["priority"] == 3 %}
+
+                                        <span class="priority high">
+                                            High
+                                        </span>
+
+                                    {% elif patient["priority"] == 2 %}
+
+                                        <span class="priority medium">
+                                            Medium
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="priority low">
+                                            Low
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    {% if patient["status"] == "Completed" %}
+
+                                        <span class="status completed-status">
+                                            ✓ Completed
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status waiting-status">
+                                            ● Waiting
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <tr>
+
+                                <td colspan="5"
+                                    class="empty-table">
+
+                                    No patients registered yet.
+
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= QUICK ACTIONS ================= -->
+
+        <section class="quick-actions">
+
+            <h2>Quick Actions</h2>
+
+            <div class="quick-grid">
+
+                <a href="{{ url_for('patient_form') }}"
+                   class="quick-card">
+
+                    <span>➕</span>
+
+                    <div>
+
+                        <strong>Register Patient</strong>
+
+                        <small>
+                            Add a new patient
+                        </small>
+
+                    </div>
+
+                </a>
+
+
+                <a href="{{ url_for('queue') }}"
+                   class="quick-card">
+
+                    <span>🚨</span>
+
+                    <div>
+
+                        <strong>View Priority Queue</strong>
+
+                        <small>
+                            Check treatment order
+                        </small>
+
+                    </div>
+
+                </a>
+
+
+                <a href="{{ url_for('process') }}"
+                   class="quick-card">
+
+                    <span>⚙️</span>
+
+                    <div>
+
+                        <strong>Run Scheduling</strong>
+
+                        <small>
+                            Process waiting patients
+                        </small>
+
+                    </div>
+
+                </a>
+
+
+                <a href="{{ url_for('results') }}"
+                   class="quick-card">
+
+                    <span>📊</span>
+
+                    <div>
+
+                        <strong>View Results</strong>
+
+                        <small>
+                            See scheduling results
+                        </small>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="dashboard-footer">
+
+            <p>
+                KL Hospital Priority Scheduling System © 2026
+            </p>
+
+            <span>
+                Priority-based patient management
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <!-- DASHBOARD JAVASCRIPT -->
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}">
+    </script>
+
+</body>
+
+</html>
