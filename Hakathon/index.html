@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart Resource Allocator - OSSP</title>
+<link rel="stylesheet" href="style.css">
+<style>.spark{width:100%;height:70px}.spark polyline{fill:none;stroke:var(--ac);stroke-width:2}tr.mg td{background:var(--ac2)}td.wrap{white-space:normal}.act button{margin-right:4px}</style>
+</head><body>
+<div class="app">
+<aside><div class="brand"><i></i><div><b>Smart Resource</b><small>Allocator · Linux</small></div></div>
+<nav><a href="#dash" data-v="dash">System dashboard</a><a href="#proc" data-v="proc">Processes</a><a href="#alloc" data-v="alloc">Smart allocator</a></nav>
+<div class="foot"><span></span>Live data from /proc</div></aside>
+<div class="main">
+<div class="top"><h1 id="title"></h1><span class="pill ok" id="pill">Live</span><select class="btn" id="th" aria-label="Theme"><option value="neon">Neon</option><option value="sunset">Sunset</option><option value="aurora">Aurora</option><option value="light">Classic</option></select></div>
+
+<section class="view" id="v-dash"><div class="grid k4" id="kpis"></div>
+<div class="grid g2"><div class="card"><h2>Utilization</h2><div class="rings" id="rings"></div></div><div class="card"><h2>CPU over the last minute</h2><svg class="spark" id="spark" viewBox="0 0 200 60" preserveAspectRatio="none"></svg><h2 style="margin-top:14px">Process states</h2><div id="states"></div></div></div>
+<div class="card" style="margin-bottom:16px"><h2>Busiest processes</h2><div class="scroll"><table id="top"></table></div></div>
+<div class="card"><h2>Operating system concepts in this project</h2><div class="scroll"><table><tr><th>Concept<th>Where it is used</tr>
+<tr><td>Process states and /proc<td class="wrap">Every table reads live data from the kernel's /proc filesystem.</tr>
+<tr><td>fork and exec<td class="wrap">Each managed worker is created with fork+exec, then forks child processes to use CPU.</tr>
+<tr><td>Inter-process communication<td class="wrap">The manager sends allocation commands to workers through a pipe.</tr>
+<tr><td>Signals<td class="wrap">Stop, Continue and Kill send SIGSTOP, SIGCONT and SIGKILL to a worker's process group.</tr>
+<tr><td>Scheduling priority<td class="wrap">Renice calls setpriority() to change a worker's nice value.</tr>
+<tr><td>Deadlock avoidance<td class="wrap">Banker's algorithm decides whether a request leaves the system in a safe state.</tr></table></div></div></section>
+
+<section class="view" id="v-proc" hidden><div class="card"><h2>Processes <small>highlighted rows are managed by this app</small></h2><div class="scroll"><table id="pt"></table></div></div></section>
+
+<section class="view" id="v-alloc" hidden>
+<div class="grid k4" id="pool"></div>
+<div class="card" style="margin-bottom:16px"><h2>Managed workers</h2><div class="row" style="margin-bottom:12px"><label>Name<input id="wn" placeholder="e.g. Database"></label><label>Max cores<input type="number" min="0" id="wc" value="1"></label><label>Max RAM (MB)<input type="number" min="0" id="wm" value="200"></label><button class="btn p" id="spawn">Create worker</button><button class="btn" id="demo">Create 3 demo workers</button></div>
+<div class="scroll"><table id="wt"></table></div><h2 style="margin:16px 0 4px">Safe sequence</h2><div class="chain" id="chain"></div></div>
+<div class="card" style="margin-bottom:16px"><h2>Request resources</h2><div class="row"><label>Worker<select id="rp"></select></label><label>Cores<input type="number" min="0" id="r0" value="1"></label><label>RAM (MB)<input type="number" min="0" id="r1" value="50"></label><button class="btn p" id="sub">Run Banker's algorithm</button></div><div id="res"><p class="mu">Create workers, then request resources. A granted request really starts processes and allocates memory.</p></div></div>
+<div class="card"><h2>Decision log</h2><ul class="log" id="log"></ul></div></section>
+</div></div>
+<script src="app.js"></script></body></html>
